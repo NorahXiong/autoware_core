@@ -122,3 +122,89 @@ TEST(QPInterfaceTest, Optimize_ValidInputs_ReturnsResult)
 }
 
 }  // namespace autoware::qp_interface
+TEST(QPInterfaceTest, InitializeProblem_SetsCorrectDimensions)
+{
+  Eigen::MatrixXd P(3, 3);
+  P << 1, 0, 0,
+       0, 1, 0,
+       0, 0, 1;
+  Eigen::MatrixXd A(2, 3);
+  A << 1, 1, 1,
+       0, 1, 0;
+  std::vector<double> q = {1.0, 2.0, 3.0};
+  std::vector<double> l = {1.0, 2.0};
+  std::vector<double> u = {1.0, 2.0};
+  bool enable_warm_start = false;
+  c_float eps_abs = 1e-4;
+
+  OSQPInterface osqp(P, A, q, l, u, enable_warm_start, eps_abs);
+  EXPECT_EQ(osqp.getVariablesNum(), 3);
+  EXPECT_EQ(osqp.getConstraintsNum(), 2);
+}
+
+TEST(QPInterfaceTest, Optimize_ChainedCall_Success)
+{
+  Eigen::MatrixXd P(2, 2);
+  P << 4, 1,
+       1, 2;
+  Eigen::MatrixXd A(1, 2);
+  A << 1, 1;
+  std::vector<double> q = {1.0, 1.0};
+  std::vector<double> l = {1.0};
+  std::vector<double> u = {2.0};
+  bool enable_warm_start = false;
+  c_float eps_abs = 1e-4;
+
+  OSQPInterface osqp(P, A, q, l, u, enable_warm_start, eps_abs);
+  
+  // Change problem parameters and optimize
+  P << 2, 0,
+       0, 2;
+  q = {2.0, 3.0};
+  l = {0.0};
+  u = {4.0};
+  
+  std::vector<double> result = osqp.optimize(P, A, q, l, u);
+  EXPECT_EQ(result.size(), 2);
+}
+
+TEST(QPInterfaceTest, Optimize_LargeMatrix_Success)
+{
+  const int n = 5;  // variables
+  const int m = 3;  // constraints
+  
+  Eigen::MatrixXd P = Eigen::MatrixXd::Identitqy(n, n);
+  Eigen::MatrixXd A = Eigen::MatrixXd::Ones(m, n);
+  std::vector<double> q(n, 1.0);
+  std::vector<double> l(m, -1.0);
+  std::vector<double> u(m, 1.0);
+  bool enable_warm_start = false;
+  c_float eps_abs = 1e-4;
+
+  OSQPInterface osqp(P, A, q, l, u, enable_warm_start, eps_abs);
+  std::vector<double> result = osqp.optimize(P, A, q, l, u);
+  
+  EXPECT_EQ(result.size(), n);
+  EXPECT_EQ(osqp.getVariablesNum(), n);
+  EXPECT_EQ(osqp.getConstraintsNum(), m);
+}
+
+TEST(QPInterfaceTest, Optimize_MinimumSizeProblem_Success)
+{
+  Eigen::MatrixXd P(1, 1);
+  P << 1;
+  Eigen::MatrixXd A(1, 1);
+  A << 1;
+  std::vector<double> q = {1.0};
+  std::vector<double> l = {0.0};
+  std::vector<double> u = {1.0};
+  bool enable_warm_start = false;
+  c_float eps_abs = 1e-4;
+
+  OSQPInterface osqp(P, A, q, l, u, enable_warm_start, eps_abs);
+  std::vector<double> result = osqp.optimize(P, A, q, l, u);
+  
+  EXPECT_EQ(result.size(), 1);
+  EXPECT_EQ(osqp.getVariablesNum(), 1);
+  EXPECT_EQ(osqp.getConstraintsNum(), 1);
+}

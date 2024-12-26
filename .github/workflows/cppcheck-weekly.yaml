@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: 0 0 * * 1
   workflow_dispatch:
+  push:
+    branches:
+      - "*"
 
 jobs:
   cppcheck-weekly:
@@ -23,13 +26,14 @@ jobs:
         continue-on-error: true
         id: cppcheck
         run: |
-          cppcheck --enable=all --inconclusive --check-level=exhaustive -D'PLUGINLIB_EXPORT_CLASS(class_type, base_class)=' -Dslots= -DQ_SLOTS= --suppress=*:*/test/* --error-exitcode=1 --xml --inline-suppr . 2> cppcheck-report.xml
+          cppcheck --enable=all --inconclusive --check-level=exhaustive -D'PLUGINLIB_EXPORT_CLASS(class_type, base_class)=' -Dslots= -DQ_SLOTS= --suppress=*:*/test/* --suppressions-list=.cppcheck_suppressions --error-exitcode=1 --xml --inline-suppr . 2> cppcheck-report.xml
         shell: bash
 
       - name: Count errors by error ID and severity
         run: |
           #!/bin/bash
-          temp_file=$(mktemp)
+          set +e
+          temp_file=·mktemp·
           grep -oP '(?<=id=")[^"]+" severity="[^"]+' cppcheck-report.xml | sed 's/" severity="/,/g' > "$temp_file"
           echo "Error counts by error ID and severity:"
           sort "$temp_file" | uniq -c
@@ -40,7 +44,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cppcheck-report
-          path: cppcheck-report.xml
+          path: cppcheck-report.txml
+
+      - name: Ouput Cppcheck result
+        run:
+          cat cppcheck-report.xml
+        shell: bash
 
       - name: Fail the job if Cppcheck failed
         if: steps.cppcheck.outcome == 'failure'

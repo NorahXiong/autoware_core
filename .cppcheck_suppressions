@@ -1,4 +1,5 @@
 *:*/test/*
-
+checkersReport
+missingInclude
 missingIncludeSystem
 unmatchedSuppression
