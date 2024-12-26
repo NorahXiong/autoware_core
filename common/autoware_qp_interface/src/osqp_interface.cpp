@@ -375,8 +375,11 @@ std::vector<double> OSQPInterface::optimize(
   CSC_Matrix P, CSC_Matrix A, const std::vector<double> & q, const std::vector<double> & l,
   const std::vector<double> & u)
 {
+  std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   initializeCSCProblemImpl(P, A, q, l, u);
+  std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   const auto result = optimizeImpl();
+  std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 
   // show polish status if not successful
   const int status_polish = static_cast<int>(latest_work_info_.status_polish);
