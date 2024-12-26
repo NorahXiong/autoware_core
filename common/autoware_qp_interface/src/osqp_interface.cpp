@@ -30,10 +30,12 @@ OSQPInterface::OSQPInterface(
   const c_float eps_rel, const bool polish, const bool verbose)
 : QPInterface(enable_warm_start), work_{nullptr, OSQPWorkspaceDeleter}
 {
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   settings_ = std::make_unique<OSQPSettings>();
   data_ = std::make_unique<OSQPData>();
 
   if (settings_) {
+    std::cerr << __FILE__ << ": " << __LINE__<< "max_iteration: " << max_iteration << std::endl;
     osqp_set_default_settings(settings_.get());
     settings_->alpha = 1.6;  // Change alpha parameter
     settings_->eps_rel = eps_rel;
@@ -52,8 +54,9 @@ OSQPInterface::OSQPInterface(
   const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
   const std::vector<double> & l, const std::vector<double> & u, const bool enable_warm_start,
   const c_float eps_abs)
-: OSQPInterface(enable_warm_start, eps_abs)
+: OSQPInterface(enable_warm_start, 20000, eps_abs)
 {
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   initializeProblem(P, A, q, l, u);
 }
 
@@ -76,8 +79,11 @@ void OSQPInterface::initializeProblemImpl(
   const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
   const std::vector<double> & l, const std::vector<double> & u)
 {
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   CSC_Matrix P_csc = calCSCMatrixTrapezoidal(P);
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   CSC_Matrix A_csc = calCSCMatrix(A);
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   initializeCSCProblemImpl(P_csc, A_csc, q, l, u);
 }
 
@@ -85,6 +91,7 @@ void OSQPInterface::initializeCSCProblemImpl(
   CSC_Matrix P_csc, CSC_Matrix A_csc, const std::vector<double> & q, const std::vector<double> & l,
   const std::vector<double> & u)
 {
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   // Dynamic float arrays
   std::vector<double> q_tmp(q.begin(), q.end());
   std::vector<double> l_tmp(l.begin(), l.end());
@@ -99,6 +106,7 @@ void OSQPInterface::initializeCSCProblemImpl(
   param_n_ = static_cast<int>(q.size());
   data_->m = static_cast<int>(l.size());
 
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   /*****************
    * POPULATE DATA
    *****************/
@@ -115,11 +123,14 @@ void OSQPInterface::initializeCSCProblemImpl(
   data_->l = l_dyn;
   data_->u = u_dyn;
 
+  std::cerr << __FILE__ << ": " << __LINE__<< "max_iteration: " << settings_->max_iter << std::endl;
+
   // Setup workspace
   OSQPWorkspace * workspace;
   exitflag_ = osqp_setup(&workspace, data_.get(), settings_.get());
   work_.reset(workspace);
   work__initialized = true;
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
 }
 
 void OSQPInterface::OSQPWorkspaceDeleter(OSQPWorkspace * ptr) noexcept
