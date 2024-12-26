@@ -24,6 +24,7 @@ void QPInterface::initializeProblem(
   const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
   const std::vector<double> & l, const std::vector<double> & u)
 {
+  std::cerr << __FILE__ << ": " << __LINE__<< std::endl;
   // check if arguments are valid
   std::stringstream ss;
   if (P.rows() != P.cols()) {
