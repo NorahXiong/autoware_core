@@ -95,8 +95,7 @@ TEST_F(GNSSPoserConstructorTest, TestNodeCreation)
 class TestPublisherNode : public rclcpp::Node
 {
 public:
-  TestPublisherNode()
-  : Node("test_publisher_node")
+  TestPublisherNode() : Node("test_publisher_node")
   {
     // Create publishers
     map_projector_pub_ = create_publisher<autoware_map_msgs::msg::MapProjectorInfo>(
@@ -126,7 +125,8 @@ public:
 
   rclcpp::Publisher<autoware_map_msgs::msg::MapProjectorInfo>::SharedPtr map_projector_pub_;
   rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr fix_pub_;
-  rclcpp::Publisher<autoware_sensing_msgs::msg::GnssInsOrientationStamped>::SharedPtr orientation_pub_;
+  rclcpp::Publisher<autoware_sensing_msgs::msg::GnssInsOrientationStamped>::SharedPtr
+    orientation_pub_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 };
 
@@ -265,7 +265,7 @@ TEST_F(GNSSPoserTest, TestFixedGNSS)
   auto map_projector_info = createMapProjectorInfoMsg();
   publisher_node_->map_projector_pub_->publish(map_projector_info);
   std::this_thread::sleep_for(100ms);  // Wait for message propagation
-  
+
   publisher_node_->fix_pub_->publish(nav_sat_fix);
   EXPECT_TRUE(waitForMessage([this]() { return fixed_status_received_; }, 500ms));
 
@@ -327,16 +327,16 @@ TEST_F(GNSSPoserTest, TestGNSSFixProcessing)
   EXPECT_TRUE(waitForMessage([this]() { return fixed_status_received_; }, 500ms));
   EXPECT_TRUE(last_fixed_status_.data);
   EXPECT_TRUE(waitForMessage([this]() { return pose_received_; }, 500ms));
-  
+
   // Reset status
   fixed_status_received_ = false;
   pose_received_ = false;
-  
+
   // Publish non-fixed GPS info
   auto non_fixed_nav_sat_fix =
     createNavSatFixMsg(35.681236, 139.767125, 41.0, sensor_msgs::msg::NavSatStatus::STATUS_NO_FIX);
   publisher_node_->fix_pub_->publish(non_fixed_nav_sat_fix);
-  
+
   // Verify non-fixed status and no position publishing
   EXPECT_TRUE(waitForMessage([this]() { return fixed_status_received_; }, 500ms));
   EXPECT_FALSE(last_fixed_status_.data);
@@ -516,7 +516,7 @@ TEST_F(GNSSPoserTest, TestPositionBufferMethods)
   // Wait for position message (should be published after buffer is filled)
   EXPECT_TRUE(waitForMessage([this]() { return pose_received_; }, 500ms));
   EXPECT_EQ(last_pose_.header.frame_id, "map");
-  
+
   // Clean up
   executor_->cancel();
   if (executor_thread_.joinable()) {
@@ -554,24 +554,24 @@ TEST_F(GNSSPoserTest, TestStaticTransform)
   // Wait for position message to be published
   EXPECT_TRUE(waitForMessage([this]() { return pose_received_; }, 500ms));
 
-  // If get_static_transform successfully found and applied the TF, the final position will be affected
-  // because GNSS position is calculated through a transform based on the custom TF
-  // Check position is not zero
+  // If get_static_transform successfully found and applied the TF, the final position will be
+  // affected because GNSS position is calculated through a transform based on the custom TF Check
+  // position is not zero
   EXPECT_NE(last_pose_.pose.position.x, 0.0);
   EXPECT_NE(last_pose_.pose.position.y, 0.0);
 
   // Test case when source and target frames are the same
   fixed_status_received_ = false;
   pose_received_ = false;
-  
+
   // Publish GNSS message with same source and target frame
   auto same_frame_nav_sat_fix = createNavSatFixMsg(35.681236, 139.767125, 41.0);
-  same_frame_nav_sat_fix.header.frame_id = "base_link"; // Use same frame ID as base_frame
+  same_frame_nav_sat_fix.header.frame_id = "base_link";  // Use same frame ID as base_frame
   publisher_node_->fix_pub_->publish(same_frame_nav_sat_fix);
-  
+
   // Wait for position message to be published
   EXPECT_TRUE(waitForMessage([this]() { return pose_received_; }, 500ms));
-  
+
   // Position should still be valid
   EXPECT_NE(last_pose_.pose.position.x, 0.0);
   EXPECT_NE(last_pose_.pose.position.y, 0.0);
@@ -593,8 +593,8 @@ TEST_F(GNSSPoserTest, TestMedianPosition)
   options.append_parameter_override("gnss_base_frame", "gnss_base_link");
   options.append_parameter_override("map_frame", "map");
   options.append_parameter_override("use_gnss_ins_orientation", true);
-  options.append_parameter_override("buff_epoch", 5);             // Use 5 points
-  options.append_parameter_override("gnss_pose_pub_method", 2);   // Use median method
+  options.append_parameter_override("buff_epoch", 5);            // Use 5 points
+  options.append_parameter_override("gnss_pose_pub_method", 2);  // Use median method
 
   gnss_poser_node_ = std::make_shared<autoware::gnss_poser::GNSSPoser>(options);
   executor_->add_node(gnss_poser_node_);
@@ -615,7 +615,7 @@ TEST_F(GNSSPoserTest, TestMedianPosition)
   // Publish map projection info
   auto map_projector_info = createMapProjectorInfoMsg();
   publisher_node_->map_projector_pub_->publish(map_projector_info);
-  
+
   // Publish orientation info
   auto orientation_msg = createGnssInsOrientationMsg();
   publisher_node_->orientation_pub_->publish(orientation_msg);
@@ -626,7 +626,8 @@ TEST_F(GNSSPoserTest, TestMedianPosition)
   // Median test data - publish ordered GPS points
   // Use deliberately placed outlier points to test if median calculation works
   std::vector<double> test_latitudes = {35.681236, 35.681237, 35.681240, 35.681230, 35.681235};
-  std::vector<double> test_longitudes = {139.767125, 139.767127, 139.767130, 139.767120, 139.767123};
+  std::vector<double> test_longitudes = {
+    139.767125, 139.767127, 139.767130, 139.767120, 139.767123};
   std::vector<double> test_altitudes = {41.0, 41.1, 41.5, 40.8, 41.2};
 
   // Publish multiple GPS points to fill buffer
@@ -646,7 +647,7 @@ TEST_F(GNSSPoserTest, TestMedianPosition)
   EXPECT_TRUE(pose_received_);
   EXPECT_NE(last_pose_.pose.position.x, 0.0);
   EXPECT_NE(last_pose_.pose.position.y, 0.0);
-  
+
   // Clean up
   executor_->cancel();
   if (executor_thread_.joinable()) {
