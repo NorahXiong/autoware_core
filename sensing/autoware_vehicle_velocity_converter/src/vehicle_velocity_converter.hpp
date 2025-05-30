@@ -22,15 +22,19 @@
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 
 #include <array>
+#include <functional> // Required for std::function
 #include <string>
 #include <vector>
 
-namespace autoware::vehicle_velocity_converter
+namespace autoware::vehicle_velocity_converter // Corrected namespace
 {
 class VehicleVelocityConverter : public rclcpp::Node
 {
 public:
   explicit VehicleVelocityConverter(const rclcpp::NodeOptions & options);
+  // Setter for the test callback
+  void set_publisher_callback(
+    std::function<void(const geometry_msgs::msg::TwistWithCovarianceStamped &)> callback);
 
 private:
   void callback_velocity_report(const autoware_vehicle_msgs::msg::VelocityReport::SharedPtr msg);
@@ -44,7 +48,11 @@ private:
   double stddev_vx_;
   double stddev_wz_;
   double speed_scale_factor_;
+
+  // Callback for testing purposes
+  std::function<void(const geometry_msgs::msg::TwistWithCovarianceStamped &)>
+    test_publisher_callback_;
 };
-}  // namespace autoware::vehicle_velocity_converter
+}  // namespace autoware::vehicle_velocity_converter // Corrected namespace
 
 #endif  // VEHICLE_VELOCITY_CONVERTER_HPP_

@@ -18,6 +18,13 @@
 
 namespace autoware::vehicle_velocity_converter
 {
+// Implementation for the test callback setter
+void VehicleVelocityConverter::set_publisher_callback(
+  std::function<void(const geometry_msgs::msg::TwistWithCovarianceStamped &)> callback)
+{
+  test_publisher_callback_ = callback;
+}
+
 VehicleVelocityConverter::VehicleVelocityConverter(const rclcpp::NodeOptions & options)
 : rclcpp::Node("vehicle_velocity_converter", options),
   frame_id_(declare_parameter<std::string>("frame_id")),
@@ -25,6 +32,8 @@ VehicleVelocityConverter::VehicleVelocityConverter(const rclcpp::NodeOptions & o
   stddev_wz_(declare_parameter<double>("angular_velocity_stddev_zz")),
   speed_scale_factor_(declare_parameter<double>("speed_scale_factor"))
 {
+  // Initialize the test callback to an empty function
+  test_publisher_callback_ = nullptr;
   vehicle_report_sub_ = create_subscription<autoware_vehicle_msgs::msg::VelocityReport>(
     "velocity_status", rclcpp::QoS{100},
     std::bind(&VehicleVelocityConverter::callback_velocity_report, this, std::placeholders::_1));
@@ -53,7 +62,11 @@ void VehicleVelocityConverter::callback_velocity_report(
   twist_with_covariance_msg.twist.covariance[4 + 4 * 6] = 10000.0;
   twist_with_covariance_msg.twist.covariance[5 + 5 * 6] = stddev_wz_ * stddev_wz_;
 
-  twist_with_covariance_pub_->publish(twist_with_covariance_msg);
+  if (test_publisher_callback_) {
+    test_publisher_callback_(twist_with_covariance_msg);
+  } else {
+    twist_with_covariance_pub_->publish(twist_with_covariance_msg);
+  }
 }
 }  // namespace autoware::vehicle_velocity_converter
 

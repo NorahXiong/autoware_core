@@ -19,3 +19,32 @@ ament_auto_package(
   launch
   config
 )
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  set(ament_lint_auto_lint_types test)
+  ament_lint_auto_find_test_dependencies()
+
+  add_executable(
+    test_vehicle_velocity_converter
+    test/test_vehicle_velocity_converter.cpp
+  )
+  ament_target_dependencies(
+    test_vehicle_velocity_converter
+    "rclcpp"
+    "autoware_vehicle_msgs"
+    "geometry_msgs"
+    "${PROJECT_NAME}"  # Link against the package's library
+    "ament_cmake_gtest"
+  )
+
+  install(
+    TARGETS test_vehicle_velocity_converter
+    DESTINATION lib/${PROJECT_NAME}
+  )
+
+  ament_add_gtest(
+    test_vehicle_velocity_converter
+    test/test_vehicle_velocity_converter.cpp
+  )
+endif()
