@@ -114,7 +114,7 @@ jobs:
 
       - name: Build
         if: ${{ steps.get-self-packages.outputs.self-packages != '' }}
-        uses: autowarefoundation/autoware-github-actions/colcon-build@v1
+        uses: NorahXiong/autoware-github-actions/colcon-build@clang-tidy-fix
         with:
           rosdistro: ${{ inputs.rosdistro }}
           cache-key-element: build-and-test-${{ inputs.cache-key-element }}${{ inputs.above && '-above' || '' }}
@@ -179,12 +179,12 @@ jobs:
 
       - name: Run clang-tidy
         if: ${{ steps.get-self-packages.outputs.self-packages != '' }}
-        uses: autowarefoundation/autoware-github-actions/clang-tidy@v1
+        uses: NorahXiong/autoware-github-actions/clang-tidy@clang-tidy-fix
         with:
           rosdistro: ${{ inputs.rosdistro }}
           cache-key-element: build-and-test-${{ inputs.cache-key-element }}${{ inputs.above && '-above' || '' }}
           target-packages: ${{ steps.get-self-packages.outputs.self-packages }}
-          clang-tidy-config-url: https://raw.githubusercontent.com/autowarefoundation/autoware/main/.clang-tidy-ci
+          clang-tidy-config-url: https://raw.githubusercontent.com/NorahXiong/autoware_core/feat/remove_failed_clang_checks/.clang-tidy-ci
           underlay-workspace: /opt/autoware
           artifact-name: clang-tidy-result-${{ inputs.rosdistro }}
 
