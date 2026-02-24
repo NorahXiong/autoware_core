@@ -138,7 +138,7 @@ jobs:
       - name: Test
         if: ${{ steps.get-self-packages.outputs.self-packages != '' }}
         id: test
-        uses: autowarefoundation/autoware-github-actions/colcon-test@v1
+        uses: NorahXiong/autoware-github-actions/colcon-test@clang-tidy-fix
         with:
           rosdistro: ${{ inputs.rosdistro }}
           target-packages: ${{ steps.get-self-packages.outputs.self-packages }}
