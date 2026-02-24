@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rosdistro: [humble, jazzy]
+        rosdistro: [humble]
         above: [true]
         include:
           - rosdistro: humble
@@ -30,7 +30,7 @@ jobs:
       above: ${{ matrix.above }}
       codecov-flag: total-${{ matrix.rosdistro }}
       concurrency-group: build-and-test-${{ matrix.rosdistro }}${{ matrix.above && '-above' || '' }}-${{ github.ref }}-${{ github.run_id }}
-      runner: ${{ '["ubuntu-latest"]' }}
+      runner: ${{ matrix.above && '["self-hosted","Linux","X64"]' || '["ubuntu-latest"]' }}
 
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
