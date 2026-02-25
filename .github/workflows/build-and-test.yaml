@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rosdistro: [humble]
+        rosdistro: [humble, jazzy]
         above: [true]
         include:
           - rosdistro: humble
