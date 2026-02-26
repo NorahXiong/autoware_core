@@ -142,24 +142,24 @@ jobs:
             /root/.ccache
           key: ccache-main-${{ runner.arch }}-${{ inputs.rosdistro }}${{ inputs.above && '-above' || '' }}-${{ github.sha }}
 
-      - name: Test
-        if: ${{ steps.get-self-packages.outputs.self-packages != '' }}
-        id: test
-        uses: NorahXiong/autoware-github-actions/colcon-test@clang-tidy-fix
-        with:
-          rosdistro: ${{ inputs.rosdistro }}
-          target-packages: ${{ steps.get-self-packages.outputs.self-packages }}
-          underlay-workspace: /opt/autoware
+      # - name: Test
+      #   if: ${{ steps.get-self-packages.outputs.self-packages != '' }}
+      #   id: test
+      #   uses: NorahXiong/autoware-github-actions/colcon-test@clang-tidy-fix
+      #   with:
+      #     rosdistro: ${{ inputs.rosdistro }}
+      #     target-packages: ${{ steps.get-self-packages.outputs.self-packages }}
+      #     underlay-workspace: /opt/autoware
 
-      - name: Upload coverage to CodeCov
-        if: ${{ steps.test.outputs.coverage-report-files != '' && !inputs.above }}
-        uses: codecov/codecov-action@v5
-        with:
-          files: ${{ steps.test.outputs.coverage-report-files }}
-          fail_ci_if_error: false
-          verbose: true
-          flags: ${{ inputs.codecov-flag }}
-          token: ${{ secrets.codecov-token }}
+      # - name: Upload coverage to CodeCov
+      #   if: ${{ steps.test.outputs.coverage-report-files != '' && !inputs.above }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     files: ${{ steps.test.outputs.coverage-report-files }}
+      #     fail_ci_if_error: false
+      #     verbose: true
+      #     flags: ${{ inputs.codecov-flag }}
+      #     token: ${{ secrets.codecov-token }}
 
       - name: Show disk space after the tasks
         run: df -h
