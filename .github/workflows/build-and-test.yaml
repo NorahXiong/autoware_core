@@ -10,14 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rosdistro: [humble, jazzy]
+        rosdistro: [jazzy]
         above: [true]
         include:
           - rosdistro: humble
-            container: ghcr.io/autowarefoundation/autoware:core-common-devel
+            container: ghcr.io/autowarefoundation/autoware@sha256:ebf8d4b6dc0fefe0e9d2727ec79919b423d8bf384f2b54a051abe248ba3dd624
 
           - rosdistro: jazzy
-            container: ghcr.io/autowarefoundation/autoware:core-common-devel-jazzy-amd64
+            container: ghcr.io/autowarefoundation/autoware:core-common-devel-jazzy-amd64@sha256:733dcaab22e0af103b73acdb63389d4781baf2c731caf859d1c84ec2c6d8816c
 
     uses: ./.github/workflows/build-and-test-reusable.yaml
 

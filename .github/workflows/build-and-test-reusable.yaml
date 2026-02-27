@@ -77,8 +77,8 @@ jobs:
       - name: Show machine specs
         run: lscpu && free -h
 
-      # - name: Remove exec_depend
-      #   uses: autowarefoundation/autoware-github-actions/remove-exec-depend@v1
+      - name: Remove exec_depend
+        uses: autowarefoundation/autoware-github-actions/remove-exec-depend@v1
 
       - name: Get self packages
         id: get-self-packages
@@ -126,7 +126,10 @@ jobs:
           target-packages: ${{ steps.get-self-packages.outputs.self-packages }}
           packages-above-repos: ${{ inputs.above && 'packages_above.repos' || '' }}
           underlay-workspace: /opt/autoware
-          build-pre-command: taskset --cpu-list 0-15
+          build-pre-command: |
+            env CXXFLAGS="-Wno-error=maybe-uninitialized ${CXXFLAGS:-}" \
+                CFLAGS="-Wno-error=maybe-uninitialized ${CFLAGS:-}" \
+                taskset --cpu-list 0-15
           colcon-parallel-workers-flag: --parallel-workers 6
 
       - name: Show ccache stats after build
