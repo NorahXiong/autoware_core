@@ -77,8 +77,8 @@ jobs:
       - name: Show machine specs
         run: lscpu && free -h
 
-      # - name: Remove exec_depend
-      #   uses: autowarefoundation/autoware-github-actions/remove-exec-depend@v1
+      - name: Remove exec_depend
+        uses: autowarefoundation/autoware-github-actions/remove-exec-depend@v1
 
       - name: Get self packages
         id: get-self-packages

@@ -2,7 +2,7 @@ repositories:
   autoware/autoware_universe:
     type: git
     url: https://github.com/NorahXiong/autoware_universe.git
-    version: check_new_clang_tidy_config_for_all_packages
+    version: temp_supress_build_error
   autoware/autoware_adapi_msgs:
     type: git
     url: https://github.com/autowarefoundation/autoware_adapi_msgs.git
